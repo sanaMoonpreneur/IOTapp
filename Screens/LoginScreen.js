@@ -36,7 +36,7 @@ const LoginScreen = (props) => {
             if (result.statusCode === 200 && result.result && result.result.length > 0) {
                 await AsyncStorage.setItem('loginResponse', JSON.stringify(result));
                 console.log(result);
-                props.navigation.navigate("Home");
+                props.navigation.navigate("Drawer");
             } else {
                 console.error("Login failed");
             }
