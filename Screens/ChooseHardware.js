@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Dimensions, FlatList, TouchableOpacity, ImageBackground,
-    StyleSheet, Image, ActivityIndicator } from 'react-native';
+import {
+    View, Text, Dimensions, FlatList, TouchableOpacity, ImageBackground,
+    StyleSheet, Image, ActivityIndicator
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChooseHardware = ({ navigation }) => {
@@ -52,17 +54,38 @@ const ChooseHardware = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             <Text style={styles.title}>Choose Hardware</Text>
+
+            {isLoading ? (
+                <ActivityIndicator color={'white'} size="large" style={{ marginTop: 20 }} />
+            ) : (
+                <FlatList
+                    data={hardwaresResponse}
+                    keyExtractor={(item) => item.hardware_id}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={styles.hardwareItem}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Image source={{ uri: item.hardware_image }} style={styles.hardwareImage} />
+                                <View style={styles.hardwareTextContainer}>
+                                    <Text style={styles.hardwareName}>{item.hardware_name}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                />
+            )}
         </ImageBackground>
     );
 };
 
 const styles = StyleSheet.create({
     background: { width: '100%', height: '100%' },
-    headerContainer: {flexDirection: 'row',width: '100%',paddingHorizontal: 20,marginTop: 20,justifyContent: 'space-between',},
-    backButton: {paddingHorizontal: 10,paddingVertical: 13,borderRadius: 10,marginTop: 30,backgroundColor: '#d1a0a7',},
+    headerContainer: { flexDirection: 'row', width: '100%', paddingHorizontal: 20, marginTop: 20, justifyContent: 'space-between', },
+    backButton: { paddingHorizontal: 10, paddingVertical: 13, borderRadius: 10, marginTop: 30, backgroundColor: '#d1a0a7', },
     backIcon: { width: 20, height: 15 },
-    title: {color: 'white',fontSize: 35,fontWeight: '800',textAlign: 'center',marginBottom: 20,marginTop: 30,},
-    hardwareItem: {backgroundColor: 'white', flexDirection: 'row',alignItems: 'center',height: 100,padding: 15,marginVertical: 10,marginHorizontal: 20,borderRadius: 20,elevation: 3,},
+    title: { color: 'white', fontSize: 35, fontWeight: '800', textAlign: 'center', marginBottom: 20, marginTop: 30, },
+    hardwareItem: { backgroundColor: 'white', flexDirection: 'row', alignItems: 'center', height: 100, padding: 15, marginVertical: 10, marginHorizontal: 20, borderRadius: 20, elevation: 3, },
     hardwareImage: { width: 80, height: 80, marginRight: 15, borderRadius: 15, },
     hardwareTextContainer: { flex: 1 },
     hardwareName: { color: '#345c74', fontWeight: 'bold', fontSize: 20 },
