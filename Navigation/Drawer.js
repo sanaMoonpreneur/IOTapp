@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from "@expo/vector-icons";
 import HomeNew from '../Screens/Home';
 import CustomDrawer from '../Components/CustomDrawer';
-
+import ChooseHardware from '../Screens/ChooseHardware';
 
 const Drawer = createDrawerNavigator();
 
@@ -22,7 +22,10 @@ export default function DrawerScreen() {
                 headerShown: false,
                 drawerIcon: ({ color }) => (<MaterialIcons name="home" size={24} color={color} />)
             }}></Drawer.Screen>
-            
+            <Drawer.Screen name="Add Device" component={ChooseHardware} options={{
+                headerShown: false,
+                drawerIcon: ({ color }) => (<MaterialIcons name="devices" size={24} color={color} />)
+            }}></Drawer.Screen>
 
 
         </Drawer.Navigator>
