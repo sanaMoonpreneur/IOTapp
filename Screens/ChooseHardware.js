@@ -64,6 +64,7 @@ const ChooseHardware = ({ navigation }) => {
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={styles.hardwareItem}
+                            onPress={() => navigation.navigate('AddDevice', { data: item.hardware_name })}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Image source={{ uri: item.hardware_image }} style={styles.hardwareImage} />
