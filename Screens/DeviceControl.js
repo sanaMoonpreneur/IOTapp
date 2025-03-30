@@ -58,6 +58,35 @@ const DeviceControl = ({ navigation, route }) => {
         }
     };
 
+    const fetchComponents = async (apiToken) => {
+        fetchUserProfile(apiToken);
+        try {
+            const response = await fetch(`https://test.moonr.com/LMSService/api/IOT/GetDeviceComponents?user_device_id=${device.user_device_id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${apiToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}`);
+                return;
+            }
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                setComponents(result.result.filter(component => component.deleted === 'Active'));
+                const statuses = {};
+                result.result.forEach(component => {
+                    statuses[component.device_component_id] = component.component_status === 'on';
+                });
+                setComponentStatuses(statuses);
+            }
+        } catch (error) {
+            console.error('Error fetching components:', error);
+        }
+    };
+
     const saveComponent = async () => {
         if (!componentName || !selectedType) {
             Alert.alert('Error', 'Please provide a component name and type');
@@ -133,6 +162,50 @@ const DeviceControl = ({ navigation, route }) => {
         }
     };
 
+    const deleteComponent = async (component) => {
+        if (!component || !component.device_component_id) {
+            Alert.alert("Error", "Invalid component data.");
+            return;
+        }
+
+        setIsLoading(true);
+
+        const requestBody = {
+            user_device_id: device.user_device_id,
+            device_component_id: component.device_component_id,
+            device_component_name: component.device_component_name,
+            component_id: component.component_id,
+            component_pin: component.component_pin,
+            is_active: 0, // Marking component as inactive (delete)
+        };
+
+        try {
+            const response = await fetch('https://test.moonr.com/LMSService/api/IOT/AddUpdateComponent', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            const result = await response.json();
+
+            if (result.isError) {
+                Alert.alert("Error", "Failed to delete component.");
+            } else if (response.ok && result.statusCode === 200) {
+                Alert.alert("Success", "Component deleted successfully.");
+                fetchComponents(token); // Refresh the component list
+            } else {
+                Alert.alert("Error", result.message || "Something went wrong.");
+            }
+        } catch (error) {
+            console.error("Error deleting component:", error);
+            Alert.alert("Error", "Something went wrong.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <ImageBackground source={require('../images/chs.png')} style={{ width: '100%', height: '100%' }}>
@@ -172,7 +245,7 @@ const DeviceControl = ({ navigation, route }) => {
                                         value={componentStatuses[item.device_component_id] || false}
                                         onValueChange={() => toggleComponentStatus(item.device_component_id, componentStatuses[item.device_component_id])}
                                     />
-                                    <TouchableOpacity >
+                                    <TouchableOpacity onPress={() => deleteComponent(item)} >
                                         <MaterialIcons name="cancel" size={24} color="grey" />
                                     </TouchableOpacity>
                                 </View>
