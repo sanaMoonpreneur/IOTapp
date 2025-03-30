@@ -79,6 +79,83 @@ const HomeScreen = (props) => {
         }
     };
 
+    const DeviceInfo = ({
+        device_id,
+        device_name,
+        user_device_name,
+        device_connection_type,
+        device_hardware,
+        lastConnected,
+        item,
+        device_status,
+    }) => (
+
+        <TouchableOpacity style={styles.deviceInfoContainer}
+            onPress={() => {
+                props.navigation.navigate("DeviceDetail", { screenName: 'Home', device1: item, param3: token });
+                console.log(item)
+            }}
+        >
+
+            <View style={styles.deviceInfoContent}>
+
+                {device_hardware == 'NodeMCU' ? (<Image
+                    style={styles.deviceImage}
+                    source={{ uri: 'https://moonhub.moonpreneur.com/mpdashboard/iot-images/NodeMCU.webp' }}
+                />) : <Image
+                    style={styles.deviceImage}
+                    source={{ uri: 'https://imgs.search.brave.com/EX19lry8PZrFztT_V1Sr_ZE8PjhlEmwfUvbroIQSSZE/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9oYWNr/c3Rlci5pbWdpeC5u/ZXQvdXBsb2Fkcy9h/dHRhY2htZW50cy81/MDI2Mzcvcm9ib3Rf/Y2FyX0JvYk9xdnZS/cTEuanBnP2F1dG89/Y29tcHJlc3MsZm9ybWF0Jnc9NDAwJmg9/MzAwJmZpdD1taW4' }}
+                />}
+
+                <View style={{ justifyContent: 'center', }}>
+                    <View>
+                        <Text style={styles.deviceNameText}>
+                            {user_device_name}
+                        </Text>
+
+                        <Text style={styles.deviceLastConnectedText}>
+                            {lastConnected}
+                        </Text>
+                    </View>
+
+                    <Text style={styles.deviceConnectionText}>
+                        {device_connection_type}
+                    </Text>
+
+                </View>
+            </View>
+            {device_status == "Connected" ? <View
+                style={styles.statusConnected}>
+
+            </View> : <View
+                style={styles.statusDisconnected}>
+
+            </View>}
+
+            <View style={styles.deviceActionIcon}>
+                <Image
+                    source={require('../images/pl.png')}
+                    style={styles.deviceActionImage}
+                />
+            </View>
+
+        </TouchableOpacity>
+    );
+
+    const renderItem = ({ item }) => (
+        <DeviceInfo
+            device_id={item.device_id}
+            device_name={item.device_name}
+            user_device_name={item.user_device_name}
+            device_connection_type={item.connection_type}
+            device_hardware={item.hardware_name}
+            lastConnected={item.created_on}
+            item={item}
+            device_status={item.device_status}
+        >
+        </DeviceInfo>
+    );
+
     return (
         <ImageBackground
             source={require('../images/Home.png')}
@@ -220,6 +297,88 @@ const styles = StyleSheet.create({
         paddingHorizontal: 22,
         marginTop: 20,
         marginBottom: 10
+    },
+    deviceInfoContainer: {
+        flexDirection: "row",
+        backgroundColor: "lightyellow",
+        padding: 20,
+        marginHorizontal: 20,
+        borderRadius: 20,
+        alignItems: "center",
+        margin: 10,
+        justifyContent: 'space-between',
+        width: '90%'
+    },
+    deviceInfoContent: {
+        flexDirection: 'row',
+        width: '70%'
+    },
+    deviceImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 5
+    },
+    deviceNameText: {
+        color: "#345c74",
+        fontWeight: "bold",
+        justifyContent: 'center',
+        fontSize: 15,
+        paddingHorizontal: 20,
+        width: 190
+    },
+    deviceConnectionText: {
+        color: "#345c74",
+        fontWeight: "bold",
+        fontSize: 13,
+        paddingHorizontal: 20,
+        width: 170
+    },
+    deviceLastConnectedContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 8,
+    },
+    deviceLastConnectedText: {
+        color: "#f58084",
+        fontWeight: "bold",
+        fontSize: 12,
+        paddingHorizontal: 20,
+        marginRight: 20
+    },
+    statusConnected: {
+        borderRadius: 50,
+        backgroundColor: 'green',
+        width: 10,
+        height: 10,
+        bottom: 0,
+        right: 0,
+        margin: 20
+    },
+    statusDisconnected: {
+        margin: 20,
+        borderRadius: 50,
+        backgroundColor: 'red',
+        width: 10,
+        height: 10,
+        bottom: 0,
+        right: 0,
+    },
+    deviceActionIcon: {
+        width: 30,
+        height: 30,
+        borderRadius: 10,
+        color: "f580084",
+        shadowColor: "#FFF",
+        bgColor: "#FFF",
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        marginRight: 10
+    },
+    deviceActionImage: {
+        width: 9,
+        height: 9,
+        resizeMode: 'contain'
     },
 });
 
