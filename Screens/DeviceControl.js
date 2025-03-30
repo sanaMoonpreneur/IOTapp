@@ -87,6 +87,42 @@ const DeviceControl = ({ navigation, route }) => {
         }
     };
 
+    const toggleComponentStatus = async (componentId, currentStatus) => {
+        const newStatus = !currentStatus;
+        // if (!securityToken) return;
+        const requestBody = {
+            device_component_id: String(componentId),
+            device_token: String(device.device_token),
+            status: newStatus ? true : false,
+            component_desc: 'Test',
+            component_text: 'Test',
+        };
+        console.log("Update Request:", JSON.stringify(requestBody));
+        try {
+            const response = await fetch('https://test.moonr.com/LMSService/api/IOTDevice/UpdateComponentStatus', {
+                method: 'POST',
+                headers: {
+                    'user-token': securityToken,
+                    'device-token': device.device_token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+            console.log("Update Request part 2:", securityToken);
+
+            if (response.status === 200) {
+                setComponentStatuses(prevStatuses => ({
+                    ...prevStatuses,
+                    [componentId]: newStatus,
+                }));
+            } else {
+                console.error('Error updating component status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error updating component status:', error);
+        }
+    };
+
     const saveComponent = async () => {
         if (!componentName || !selectedType) {
             Alert.alert('Error', 'Please provide a component name and type');
@@ -149,7 +185,7 @@ const DeviceControl = ({ navigation, route }) => {
 
             if (response.ok && result.statusCode === 200) {
                 Alert.alert('Success', 'Component saved successfully');
-                // fetchComponents(token);
+                fetchComponents(token);
                 setBottomSheetVisible(false);
             } else {
                 Alert.alert('Error', result.message || 'Failed to save component');
@@ -207,6 +243,16 @@ const DeviceControl = ({ navigation, route }) => {
         }
     };
 
+    const handleSensorPress = (item) => {
+        if (item.component_name.toLowerCase().includes("sensor")) {
+            navigation.navigate('SensorControl', {
+                component: item,
+                device: { device_token: String(device.device_token), securityToken: securityToken },
+            });
+        }
+    };
+
+
     return (
         <ImageBackground source={require('../images/chs.png')} style={{ width: '100%', height: '100%' }}>
             <View style={{ flex: 1, }}>
@@ -236,7 +282,7 @@ const DeviceControl = ({ navigation, route }) => {
                         data={components}
                         renderItem={({ item }) => (
                             <View style={styles.componentItem}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleSensorPress(item)}>
                                     <Text style={{ fontWeight: 'bold' }}>{item.device_component_name} ({item.component_pin})</Text>
                                 </TouchableOpacity>
 
@@ -245,7 +291,7 @@ const DeviceControl = ({ navigation, route }) => {
                                         value={componentStatuses[item.device_component_id] || false}
                                         onValueChange={() => toggleComponentStatus(item.device_component_id, componentStatuses[item.device_component_id])}
                                     />
-                                    <TouchableOpacity onPress={() => deleteComponent(item)} >
+                                    <TouchableOpacity onPress={() => deleteComponent(item)}>
                                         <MaterialIcons name="cancel" size={24} color="grey" />
                                     </TouchableOpacity>
                                 </View>
@@ -300,10 +346,7 @@ const styles = StyleSheet.create({
     save: { backgroundColor: '#EC8588', padding: 12, borderRadius: 15, alignItems: 'center', marginTop: 10 },
     buttonText: { color: '#EC8588', fontSize: 16, fontWeight: 'bold' },
     saveText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-    componentItem: {
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8, backgroundColor: 'white',
-        borderRadius: 20, marginBottom: 10
-    },
+    componentItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8, backgroundColor: 'white', borderRadius: 20, marginBottom: 10 },
     bottomSheetContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
     bottomSheet: { backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 15, borderTopRightRadius: 15 },
     bottomSheetTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
