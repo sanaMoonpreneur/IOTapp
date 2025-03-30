@@ -14,8 +14,53 @@ const DeviceDetail = ({ navigation, route }) => {
 
     const device = screen === 'AddDevice' ? devicesResponse : device1;
 
+    useEffect(() => {
+        fetchToken();
+    }, []);
+
+    const fetchToken = async () => {
+        try {
+            const storedLoginResponse = await AsyncStorage.getItem('loginResponse');
+            if (storedLoginResponse) {
+                const parsedResponse = JSON.parse(storedLoginResponse);
+                const newToken = parsedResponse.result[0].token;
+                setToken(newToken);
+            }
+        } catch (error) {
+            console.error('Error retrieving token from AsyncStorage:', error);
+        }
+    };
+
     const copyToClipboard = (token) => {
         Clipboard.setStringAsync(token);
+    };
+
+    const handleDelete = async () => {
+        Alert.alert(
+            'Confirm Deletion',
+            'Are you sure you want to delete this device?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    onPress: async () => {
+                        try {
+                            const response = await axios.post(
+                                `https://test.moonr.com/LMSService/api/IOT/DeleteDeviceById?user_device_id=${device.user_device_id}`,
+                                {},
+                                { headers: { Authorization: `Bearer ${token}` } }
+                            );
+                            if (response.status === 200) {
+                                navigation.navigate('Drawer');
+                            }
+                        } catch (error) {
+                            console.error('Error during device deletion:', error);
+                        }
+                    },
+                },
+            ],
+            { cancelable: false }
+        );
     };
 
     return (
@@ -43,25 +88,24 @@ const DeviceDetail = ({ navigation, route }) => {
                     <View style={styles.copyClipboardView}>
                         <Text style={styles.deviceTokenText}>{device.device_token}</Text>
 
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => copyToClipboard(device.device_token)}>
                             <Ionicons name="copy" size={18} color="#345c74" />
                         </TouchableOpacity>
                     </View>
-
-                    <TouchableOpacity style={styles.dynamicButton} >
+                    
+                    <TouchableOpacity style={styles.dynamicButton} onPress={handleDelete}>
                         <Text style={styles.deleteTextStyle}>Delete Device</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.footerContainer}>
 
-                    <TouchableOpacity style={styles.controlScreenIconStyle}>
+                    <TouchableOpacity style={styles.controlScreenIconStyle} onPress={() => navigation.navigate("DeviceDetailsHelp", { device })}>
                         <Ionicons name="help-outline" size={26} color="white" />
                     </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.helpIconStyle}>
+                    
+                    <TouchableOpacity style={styles.helpIconStyle} onPress={() => navigation.navigate("DeviceControl", { device, items: device1, dToken: device.device_token })}>
                         <Ionicons name="arrow-forward" size={26} color="white" />
                     </TouchableOpacity>
-
                 </View>
             </View>
         </ImageBackground>
