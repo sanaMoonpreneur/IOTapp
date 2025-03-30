@@ -30,6 +30,14 @@ const HomeScreen = (props) => {
         }
     };
 
+    const onRefresh = () => {
+        setRefreshing(true);
+        fetchData();
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 1000);
+    };
+
     const fetchToken = async () => {
         try {
             const storedLoginResponse = await AsyncStorage.getItem('loginResponse');
@@ -208,6 +216,42 @@ const HomeScreen = (props) => {
                 </View>
 
                 <Text style={styles.addedDevicesText}>Added Devices</Text>
+
+                {isLoading ?
+                    (<ActivityIndicator />
+
+                    ) : (
+                        devicesResponse && devicesResponse.length > 0 ? (
+
+                            <View>
+                                <FlatList
+                                    inverted={true}
+                                    data={devicesResponse.slice(0, 3)}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => index.toString()}
+
+                                />
+
+                            </View>
+                        ) : (
+                            <View style={styles.noDataContainer}>
+
+                                <Image source={require('../assets/images/nodataImage.png')} style={styles.noDataImage} />
+
+
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        props.navigation.navigate('ChooseHardware');
+                                    }}
+                                    style={styles.addDeviceButton}
+                                >
+                                    <Text style={styles.addDeviceText}>Add Device</Text>
+                                </TouchableOpacity>
+
+                            </View>
+                        )
+                    )
+                }
             </ScrollView>
         </ImageBackground>
     );
@@ -380,6 +424,54 @@ const styles = StyleSheet.create({
         height: 9,
         resizeMode: 'contain'
     },
+    showMoreButton: {
+        flexDirection: "row",
+        backgroundColor: "#f58084",
+        alignItems: "center",
+        marginTop: 20,
+        width: 130,
+        paddingVertical: 10,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        margin: 20
+    },
+    showMoreText: {
+        color: "#FFF",
+        fontWeight: "bold",
+        fontSize: 12
+    },
+    showMoreIcon: {
+        marginLeft: 20,
+        width: 8,
+        height: 8
+    },
+    noDataContainer: {
+        margin: 10,
+        alignSelf: 'center',
+    },
+    noDataImage: {
+        width: 300,
+        height: 200,
+        resizeMode: 'contain'
+    },
+    addDeviceButton: {
+        flexDirection: "row",
+        backgroundColor: "#f58084",
+        alignItems: "center",
+        marginTop: 20,
+        width: 120,
+        padding: 10,
+        borderRadius: 14,
+        alignSelf: "center",
+        marginBottom: 30,
+    },
+    addDeviceText: {
+        color: "#FFF",
+        fontWeight: "bold",
+        fontSize: 14,
+        textAlign: "center",
+        alignSelf: 'center',
+    }
 });
 
 export default HomeScreen;
