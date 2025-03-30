@@ -6,6 +6,7 @@ import LoginScreen from './Screens/LoginScreen';
 import DrawerScreen from './Navigation/Drawer';
 import AddDevice from './Screens/AddDevice';
 import DeviceDetail from './Screens/DeviceDetail';
+import DeviceControl from './Screens/DeviceControl';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           title: "DeviceDetail",
           headerShown: false,
         }}></Stack.Screen>
+        <Stack.Screen name="DeviceControl" component={DeviceControl} options={{ headerShown: false }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   )
